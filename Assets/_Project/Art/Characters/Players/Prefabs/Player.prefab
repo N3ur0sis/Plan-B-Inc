@@ -62,7 +62,7 @@ GameObject:
   - component: {fileID: -4081886513976522183}
   m_Layer: 0
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -152,6 +152,7 @@ MonoBehaviour:
   sprintSpeed: 6
   jumpHeight: 2
   gravity: -9.81
+  airControlMultiplier: 0.4
   viewDirectionPivot: {fileID: 9085154554722021573}
   cameraHolder: {fileID: 9143338016497455674}
   lookTarget: {fileID: 1793505672091303036}
