@@ -6,6 +6,7 @@ using UnityEngine;
 using UnityEditor;
 using System.IO;
 using System.Collections.Generic;
+using UnityEditor.Build;
 
 // This copies various files into their required locations when Unity is launched to make installation a breeze.
 [InitializeOnLoad]
@@ -56,15 +57,24 @@ public class RedistInstall {
 		}
 	}
 
-	static void AddDefineSymbols() {
-		string currentDefines = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-		HashSet<string> defines = new HashSet<string>(currentDefines.Split(';')) {
-			"STEAMWORKS_NET"
-		};
+    static void AddDefineSymbols()
+    {
+        // Récupère les define symbols actuels pour la plateforme Standalone
+        var buildTarget = NamedBuildTarget.FromBuildTargetGroup(BuildTargetGroup.Standalone);
+        string currentDefines = PlayerSettings.GetScriptingDefineSymbols(buildTarget);
 
-		string newDefines = string.Join(";", defines);
-		if (newDefines != currentDefines) {
-			PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, newDefines);
-		}
-	}
+        // Ajoute "STEAMWORKS_NET" à l'ensemble
+        HashSet<string> defines = new HashSet<string>(currentDefines.Split(';'))
+    {
+        "STEAMWORKS_NET"
+    };
+
+        // Concatène les defines et met à jour uniquement s'il y a un changement
+        string newDefines = string.Join(";", defines);
+        if (newDefines != currentDefines)
+        {
+            PlayerSettings.SetScriptingDefineSymbols(buildTarget, newDefines);
+        }
+    }
+
 }
