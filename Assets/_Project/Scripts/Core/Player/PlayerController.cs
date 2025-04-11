@@ -38,9 +38,9 @@ public class PlayerController : NetworkBehaviour
     public float landingStrength = 0.5f;
     public float landingDuration = 0f;
 
-    private CharacterController controller;
+    [HideInInspector] public CharacterController controller;
     private Animator animator;
-    private InputSystem_Actions input;
+    [HideInInspector] public InputSystem_Actions input;
 
     private Vector2 moveInput;
     private Vector3 velocity;
@@ -87,8 +87,7 @@ public class PlayerController : NetworkBehaviour
 
     private void OnDisable()
     {
-        if (IsOwner && input != null)
-            input.Disable();
+        DisableInput();
     }
 
     void Update()
@@ -264,5 +263,23 @@ public class PlayerController : NetworkBehaviour
             animator.SetBool("isJumping", true);
             NetIsJumping.Value = true;
         }
+    }
+
+    public void SetVisualsVisible(bool visible)
+    {
+        if (visualRoot != null)
+            visualRoot.gameObject.SetActive(visible);
+    }
+
+    public void EnableInput()
+    {
+        if (IsOwner && input != null)
+            input.Enable();
+    }
+
+    public void DisableInput()
+    {
+        if (IsOwner && input != null)
+            input.Disable();
     }
 }
