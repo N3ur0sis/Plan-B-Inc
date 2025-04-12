@@ -61,6 +61,7 @@ GameObject:
   - component: {fileID: 8055769225077393182}
   - component: {fileID: -4081886513976522183}
   - component: {fileID: 3658351870147901215}
+  - component: {fileID: 4528751236865124994}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -168,6 +169,7 @@ MonoBehaviour:
   bobRotationAmount: 0.3
   landingStrength: 0.5
   landingDuration: 0.8
+  controller: {fileID: 0}
   NetLookTarget:
     m_InternalValue: {x: 4.6811414, y: -7.305281, z: -7.610007}
   NetIsJumping:
@@ -221,11 +223,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   interactionDistance: 3
-  interactionOrigin: {fileID: 7272218269045867464}
   interactionMask:
     serializedVersion: 2
     m_Bits: 64
-  interactionUI: {fileID: 0}
+--- !u!114 &4528751236865124994
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575117954151293642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f85cc27325bcfa143849914eac77fcd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxSlots: 8
 --- !u!1 &603413689500089589
 GameObject:
   m_ObjectHideFlags: 0
