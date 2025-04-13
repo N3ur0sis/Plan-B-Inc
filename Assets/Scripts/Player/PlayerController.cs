@@ -101,7 +101,8 @@ public class PlayerController : NetworkBehaviour
         }
 
         // Try to attach player to board if already open
-        LobbyBoardInteractable board = FindObjectOfType<LobbyBoardInteractable>();
+        LobbyBoardInteractable board = FindFirstObjectByType<LobbyBoardInteractable>();
+
         if (board != null)
             board.OnLocalPlayerChanged(Camera.main.transform, this);
 

@@ -69,7 +69,8 @@ public class PlayerControllerOffline : MonoBehaviour
         input.Player.Jump.performed += ctx => Jump();
         input.Enable();
 
-        LobbyBoardInteractable board = FindObjectOfType<LobbyBoardInteractable>();
+        LobbyBoardInteractable board = FindFirstObjectByType<LobbyBoardInteractable>();
+
         if (board != null)
             board.OnLocalPlayerChanged(Camera.main.transform, this);
     }

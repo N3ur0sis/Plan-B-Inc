@@ -25,7 +25,7 @@ public class InteractableObject : NetworkBehaviour, IInteractable
     private GameObject worldUiInstance;
     private TextMeshProUGUI worldPromptText;
 
-    private InteractionUI screenPrompt;
+    private ScreenInteractionUI screenPrompt;
     private IInteractionAction[] actions;
 
     private void Awake()
@@ -47,7 +47,7 @@ public class InteractableObject : NetworkBehaviour, IInteractable
 
         if (promptType == InteractionPromptType.UIOnly || promptType == InteractionPromptType.Both)
         {
-            screenPrompt = FindFirstObjectByType<InteractionUI>();
+            screenPrompt = FindFirstObjectByType<ScreenInteractionUI>();
             screenPrompt?.ClearPrompt();
         }
     }
