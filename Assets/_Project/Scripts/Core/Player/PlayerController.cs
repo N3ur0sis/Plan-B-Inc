@@ -2,6 +2,8 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using Unity.Collections;
+using Steamworks;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerController : NetworkBehaviour
@@ -58,6 +60,13 @@ public class PlayerController : NetworkBehaviour
     public NetworkVariable<bool> NetIsJumping = new NetworkVariable<bool>(
         writePerm: NetworkVariableWritePermission.Owner);
 
+    public NetworkVariable<FixedString128Bytes> PlayerName = new NetworkVariable<FixedString128Bytes>(
+        writePerm: NetworkVariableWritePermission.Owner);
+
+    public NetworkVariable<ulong> NetSteamId = new NetworkVariable<ulong>(
+        writePerm: NetworkVariableWritePermission.Owner
+    );
+
     public override void OnNetworkSpawn()
     {
         controller = GetComponent<CharacterController>();
@@ -77,11 +86,50 @@ public class PlayerController : NetworkBehaviour
             input.Player.Move.canceled += ctx => moveInput = Vector2.zero;
             input.Player.Jump.performed += ctx => Jump();
             input.Enable();
+
+            // Set synced Steam info
+            PlayerName.Value = SteamClient.Name;
+            NetSteamId.Value = SteamClient.SteamId.Value;
+
+            // Update name tag on server
+            SetNameTagServerRpc(PlayerName.Value.ToString());
         }
         else
         {
             if (cameraHolder != null)
                 cameraHolder.gameObject.SetActive(false);
+        }
+
+        // Try to attach player to board if already open
+        LobbyBoardInteractable board = FindObjectOfType<LobbyBoardInteractable>();
+        if (board != null)
+            board.OnLocalPlayerChanged(Camera.main.transform, this);
+
+        // Attach name tag if already set (works for late joiners)
+        if (!string.IsNullOrEmpty(PlayerName.Value.ToString()))
+        {
+            if (PlayerManager.Instance != null)
+            {
+                PlayerManager.Instance.AttachNameTag(NetworkObject, PlayerName.Value.ToString());
+            }
+        }
+
+        // Hook up listener for future name updates
+        PlayerName.OnValueChanged += (oldVal, newVal) =>
+        {
+            if (PlayerManager.Instance != null)
+            {
+                PlayerManager.Instance.AttachNameTag(NetworkObject, newVal.ToString());
+            }
+        };
+    }
+
+    [ServerRpc]
+    private void SetNameTagServerRpc(string name, ServerRpcParams rpcParams = default)
+    {
+        if (PlayerManager.Instance != null)
+        {
+            PlayerManager.Instance.AttachNameTag(NetworkObject, name);
         }
     }
 
@@ -204,7 +252,8 @@ public class PlayerController : NetworkBehaviour
             {
                 Vector3 forwardLook = cameraHolder.position + cameraHolder.forward * 10f;
                 lookTarget.position = forwardLook;
-                NetLookTarget.Value = forwardLook;
+                if (NetworkManager.Singleton != null && NetworkManager.Singleton.IsListening)
+                    NetLookTarget.Value = forwardLook;
             }
         }
     }

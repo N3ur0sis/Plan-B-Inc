@@ -57,7 +57,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4105444129546248061}
   - component: {fileID: 8368205421910724418}
-  - component: {fileID: -5994283945390467034}
+  - component: {fileID: 7945154190095348002}
   - component: {fileID: 8055769225077393182}
   - component: {fileID: -4081886513976522183}
   - component: {fileID: 3658351870147901215}
@@ -112,7 +112,7 @@ CharacterController:
   m_SkinWidth: 0.08
   m_MinMoveDistance: 0.001
   m_Center: {x: 0, y: 0, z: 0}
---- !u!114 &-5994283945390467034
+--- !u!114 &7945154190095348002
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -124,7 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d5a57f767e5e46a458fc5d3c628d0cbb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  GlobalObjectIdHash: 3166120227
+  GlobalObjectIdHash: 1630220914
   InScenePlacedSourceGlobalObjectIdHash: 0
   DeferredDespawnTick: 0
   Ownership: 1
@@ -188,6 +188,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   ShowTopMostFoldoutHeaderGroup: 1
   NetworkTransformExpanded: 1
+  AutoOwnerAuthorityTickOffset: 1
+  PositionInterpolationType: 0
+  RotationInterpolationType: 0
+  ScaleInterpolationType: 0
+  PositionLerpSmoothing: 1
+  PositionMaxInterpolationTime: 0.1
+  RotationLerpSmoothing: 1
+  RotationMaxInterpolationTime: 0.1
+  ScaleLerpSmoothing: 1
+  ScaleMaxInterpolationTime: 0.1
   AuthorityMode: 0
   TickSyncChildren: 0
   UseUnreliableDeltas: 0
@@ -210,7 +220,7 @@ MonoBehaviour:
   SwitchTransformSpaceWhenParented: 0
   Interpolate: 1
   SlerpPosition: 0
---- !u!114 &3658351870147901215
+--- !u!114 &2556545907430515313
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -219,7 +229,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 575117954151293642}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 596ce924fb8c72142bbb8041f4ee53b1, type: 3}
+  m_Script: {fileID: 11500000, guid: bcb7565656766da46a8c44f55187e5f6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   interactionDistance: 3
