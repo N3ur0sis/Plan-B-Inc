@@ -50,6 +50,7 @@ public class PlayerController : NetworkBehaviour
     private float currentHeadYaw = 0f;
     private bool isJumpingLocal = false;
     private Vector3 originalCamLocalPos;
+    public bool IsInteracting { get; private set; } = false;
 
     private float bobTimer = 0f;
     private bool wasGroundedLastFrame = true;
@@ -66,6 +67,35 @@ public class PlayerController : NetworkBehaviour
     public NetworkVariable<ulong> NetSteamId = new NetworkVariable<ulong>(
         writePerm: NetworkVariableWritePermission.Owner
     );
+
+    private bool isFrozenMidAir = false;
+    private Vector3 savedVelocity;
+
+    /// <summary> Call this when entering board interaction mid-air. </summary>
+    public void FreezeMidAir()
+    {
+        if (!IsOwner) return;
+
+        isFrozenMidAir = true;
+        savedVelocity = velocity;
+
+        // Prevent gravity & movement
+        velocity = Vector3.zero;
+        controller.enabled = false;
+        animator.SetBool("isJumping", false); // cancel jumping anim
+    }
+
+    /// <summary> Call this when leaving board interaction. </summary>
+    public void UnfreezeMidAir()
+    {
+        if (!IsOwner || !isFrozenMidAir) return;
+
+        isFrozenMidAir = false;
+        controller.enabled = true;
+
+        // Restore downward motion or neutral
+        velocity = savedVelocity;
+    }
 
     public override void OnNetworkSpawn()
     {
@@ -141,7 +171,7 @@ public class PlayerController : NetworkBehaviour
 
     void Update()
     {
-        if (!IsOwner || input == null) return;
+        if (!IsOwner || input == null || isFrozenMidAir) return;
 
         HandleMovement();
         HandleLook();
@@ -259,8 +289,21 @@ public class PlayerController : NetworkBehaviour
         }
     }
 
+    public void ResetCameraToOriginal()
+    {
+        StopAllCoroutines(); // stop bounce
+        bobTimer = 0f;
+
+        cameraHolder.localPosition = originalCamLocalPos;
+        cameraHolder.localRotation = Quaternion.Euler(verticalLookRotation, 0f, 0f);
+    }
+
     private void ApplyHeadBobbing()
     {
+        if (IsInteracting)
+        {
+            return;
+        }
         if (controller.isGrounded && moveInput.magnitude > 0.1f)
         {
 
@@ -294,13 +337,47 @@ public class PlayerController : NetworkBehaviour
         float elapsed = 0f;
         while (elapsed < landingDuration)
         {
+            if (IsInteracting) yield break; // Stop bounce if interacting
+
             float t = elapsed / landingDuration;
             float offset = Mathf.Sin(Mathf.PI * t) * -landingStrength;
             cameraHolder.localPosition = originalCamLocalPos + new Vector3(0, offset, 0);
             elapsed += Time.deltaTime;
             yield return null;
         }
+
         cameraHolder.localPosition = originalCamLocalPos;
+    }
+
+    public void ResetCameraImmediately()
+    {
+        if (cameraHolder != null)
+        {
+            cameraHolder.localPosition = originalCamLocalPos;
+            cameraHolder.localRotation = Quaternion.Euler(verticalLookRotation, 0f, 0f);
+        }
+    }
+
+    public bool IsGrounded()
+    {
+        return controller != null && controller.isGrounded;
+    }
+
+
+    public void SetInteracting(bool value)
+    {
+        IsInteracting = value;
+
+        if (IsInteracting)
+        {
+            // Reset any motion/bounce to avoid lingering effects
+            StopAllCoroutines();
+            cameraHolder.localPosition = originalCamLocalPos;
+            cameraHolder.localRotation = Quaternion.Euler(verticalLookRotation, 0f, 0f);
+            bobTimer = 0f;
+            velocity.y = 0f;
+            ResetCameraToOriginal();
+        }
     }
 
     private void Jump()

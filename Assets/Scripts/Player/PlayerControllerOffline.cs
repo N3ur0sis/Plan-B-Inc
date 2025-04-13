@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using System.Collections;
+using System.Globalization;
 
 [RequireComponent(typeof(CharacterController))]
 public class PlayerControllerOffline : MonoBehaviour
@@ -50,6 +51,65 @@ public class PlayerControllerOffline : MonoBehaviour
 
     private float bobTimer = 0f;
     private bool wasGroundedLastFrame = true;
+    public bool IsInteracting { get; private set; } = false;
+
+    private bool isFrozenMidAir = false;
+    private Vector3 savedVelocity;
+
+    /// <summary> Call this when entering board interaction mid-air. </summary>
+    public void FreezeMidAir()
+    {
+
+        isFrozenMidAir = true;
+        savedVelocity = velocity;
+
+        // Prevent gravity & movement
+        velocity = Vector3.zero;
+        controller.enabled = false;
+        animator.SetBool("isJumping", false); // cancel jumping anim
+    }
+
+    /// <summary> Call this when leaving board interaction. </summary>
+    public void UnfreezeMidAir()
+    {
+        if (!isFrozenMidAir) return;
+
+        isFrozenMidAir = false;
+        controller.enabled = true;
+
+        // Restore downward motion or neutral
+        velocity = savedVelocity;
+    }
+
+    public void SetInteracting(bool value)
+    {
+        IsInteracting = value;
+
+        if (IsInteracting)
+        {
+            // Reset any motion/bounce to avoid lingering effects
+            StopAllCoroutines();
+            cameraHolder.localPosition = originalCamLocalPos;
+            cameraHolder.localRotation = Quaternion.Euler(verticalLookRotation, 0f, 0f);
+            bobTimer = 0f;
+            velocity.y = 0f;
+            ResetCameraToOriginal();
+        }
+    }
+
+    public bool IsGrounded()
+    {
+        return controller != null && controller.isGrounded;
+    }
+
+    public void ResetCameraImmediately()
+    {
+        if (cameraHolder != null)
+        {
+            cameraHolder.localPosition = originalCamLocalPos;
+            cameraHolder.localRotation = Quaternion.Euler(verticalLookRotation, 0f, 0f);
+        }
+    }
 
     void Awake()
     {
@@ -82,6 +142,8 @@ public class PlayerControllerOffline : MonoBehaviour
 
     void Update()
     {
+
+        if ( input == null || !controller.enabled) return;
         HandleMovement();
         HandleLook();
         ApplyHeadBobbing();
@@ -176,6 +238,9 @@ public class PlayerControllerOffline : MonoBehaviour
 
     private void ApplyHeadBobbing()
     {
+
+        if (IsInteracting)
+            return;
         if (controller.isGrounded && moveInput.magnitude > 0.1f)
         {
             float bobOffset = Mathf.Sin(bobTimer) * headBobAmount;
@@ -208,13 +273,25 @@ public class PlayerControllerOffline : MonoBehaviour
         float elapsed = 0f;
         while (elapsed < landingDuration)
         {
+            if (IsInteracting) yield break; // Stop bounce if interacting
+
             float t = elapsed / landingDuration;
             float offset = Mathf.Sin(Mathf.PI * t) * -landingStrength;
             cameraHolder.localPosition = originalCamLocalPos + new Vector3(0, offset, 0);
             elapsed += Time.deltaTime;
             yield return null;
         }
+
         cameraHolder.localPosition = originalCamLocalPos;
+    }
+
+    public void ResetCameraToOriginal()
+    {
+        StopAllCoroutines(); // stop bounce
+        bobTimer = 0f;
+
+        cameraHolder.localPosition = originalCamLocalPos;
+        cameraHolder.localRotation = Quaternion.Euler(verticalLookRotation, 0f, 0f);
     }
 
     private void Jump()
@@ -230,8 +307,15 @@ public class PlayerControllerOffline : MonoBehaviour
 
     public void SetVisualsVisible(bool visible)
     {
-        if (visualRoot != null)
-            visualRoot.gameObject.SetActive(visible);
+            if ((!visible))
+            {
+
+            Camera.main.cullingMask &= ~(1 << LayerMask.NameToLayer("Player"));
+            }
+            else
+            {
+                Camera.main.cullingMask |= (1 << LayerMask.NameToLayer("Player"));
+            }
     }
 
     public void EnableInput()

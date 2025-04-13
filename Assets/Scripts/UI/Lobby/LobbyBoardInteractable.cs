@@ -72,11 +72,36 @@ public class LobbyBoardInteractable : MonoBehaviour
 
     public void EnterBoardView()
     {
+
+
         interacting = true;
         playerCamera = Camera.main.transform;
 
         playerController = playerCamera.GetComponentInParent<PlayerController>();
         playerControllerOffline = playerCamera.GetComponentInParent<PlayerControllerOffline>();
+
+        if (playerController != null)
+        {
+            playerController.FreezeMidAir();
+        }
+        else if (playerControllerOffline != null)
+        {
+            playerControllerOffline.FreezeMidAir();
+        }
+
+        if (playerController != null)
+            playerController.SetInteracting(true);
+        else if (playerControllerOffline != null)
+            playerControllerOffline.SetInteracting(true);
+
+        if (playerController != null)
+        {
+            playerController.ResetCameraImmediately(); // we'll define this
+        }
+        else if (playerControllerOffline != null)
+        {
+            playerControllerOffline.ResetCameraImmediately();
+        }
 
         originalCamPos = playerCamera.localPosition;
         originalCamRot = playerCamera.localRotation;
@@ -119,13 +144,17 @@ public class LobbyBoardInteractable : MonoBehaviour
             {
                 if (playerController != null)
                 {
+                    playerController.SetInteracting(false);
                     playerController.SetVisualsVisible(true);
                     playerController.EnableInput();
+                    playerController.UnfreezeMidAir();
                 }
                 else if (playerControllerOffline != null)
                 {
+                    playerControllerOffline.SetInteracting(false);
                     playerControllerOffline.SetVisualsVisible(true);
                     playerControllerOffline.EnableInput();
+                    playerControllerOffline.UnfreezeMidAir();
                 }
             }
         ));
