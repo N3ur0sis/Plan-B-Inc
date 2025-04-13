@@ -6,15 +6,15 @@ public class LobbyBoardInteractable : MonoBehaviour
 {
     [Header("UI & Prompt")]
     public Canvas uiCanvas;
-    public GameObject interactPrompt;
-    public Transform promptTextChild;
 
     [Header("Camera Control")]
     public Transform cameraTargetPosition;
     public Transform lookAtTarget;
     public float cameraMoveSpeed = 4f;
 
-    private bool playerNearby = false;
+    [Header("Input Action (Cancel / Escape)")]
+    [SerializeField] private InputActionReference cancelAction;
+
     private bool interacting = false;
     private Transform playerCamera;
 
@@ -24,49 +24,53 @@ public class LobbyBoardInteractable : MonoBehaviour
     private Vector3 originalCamPos;
     private Quaternion originalCamRot;
 
-    void Start()
+    private void OnEnable()
     {
-        uiCanvas.gameObject.SetActive(false);
-        interactPrompt.SetActive(false);
+        if (cancelAction != null)
+            cancelAction.action.performed += OnCancelPerformed;
     }
 
-    void Update()
+    private void OnDisable()
     {
-        // Detect and rebind if player/camera changed
+        if (cancelAction != null)
+            cancelAction.action.performed -= OnCancelPerformed;
+    }
+
+    private void Start()
+    {
+        uiCanvas.gameObject.SetActive(false);
+    }
+
+    private void Update()
+    {
+        // Auto rebind player reference if camera changes
         if (Camera.main != null && Camera.main.transform != playerCamera)
         {
-            playerCamera = Camera.main.transform;
-            playerController = playerCamera.GetComponentInParent<PlayerController>();
-            playerControllerOffline = playerCamera.GetComponentInParent<PlayerControllerOffline>();
+            playerController = FindAnyObjectByType<PlayerController>();
+            playerControllerOffline = FindAnyObjectByType<PlayerControllerOffline>();
 
-            // If interaction was active, but controller is now gone — force exit
+            if (playerController != null)
+                playerCamera = playerController.cameraHolder;
+            else if (playerControllerOffline != null)
+                playerCamera = playerControllerOffline.cameraHolder;
+
             if (interacting && playerController == null && playerControllerOffline == null)
             {
                 Debug.LogWarning("[LOBBY BOARD] Player was replaced during interaction. Forcing board exit.");
                 ExitBoardView(force: true);
             }
         }
+    }
 
-        // Keep prompt facing camera
-        if (playerCamera != null && promptTextChild != null)
-        {
-            Vector3 dirToCam = (playerCamera.position - promptTextChild.position).normalized;
-            Quaternion lookRot = Quaternion.LookRotation(-dirToCam);
-            promptTextChild.rotation = Quaternion.Slerp(promptTextChild.rotation, lookRot, Time.deltaTime * 8f);
-        }
-
-        if (playerNearby && !interacting && Keyboard.current.eKey.wasPressedThisFrame)
-        {
-            EnterBoardView();
-        }
-
-        if (interacting && Keyboard.current.escapeKey.wasPressedThisFrame)
+    private void OnCancelPerformed(InputAction.CallbackContext ctx)
+    {
+        if (interacting)
         {
             ExitBoardView();
         }
     }
 
-    void EnterBoardView()
+    public void EnterBoardView()
     {
         interacting = true;
         playerCamera = Camera.main.transform;
@@ -74,10 +78,9 @@ public class LobbyBoardInteractable : MonoBehaviour
         playerController = playerCamera.GetComponentInParent<PlayerController>();
         playerControllerOffline = playerCamera.GetComponentInParent<PlayerControllerOffline>();
 
-        originalCamPos = playerCamera.position;
-        originalCamRot = playerCamera.rotation;
+        originalCamPos = playerCamera.localPosition;
+        originalCamRot = playerCamera.localRotation;
 
-        // Disable input & visuals
         if (playerController != null)
         {
             playerController.DisableInput();
@@ -89,20 +92,17 @@ public class LobbyBoardInteractable : MonoBehaviour
             playerControllerOffline.SetVisualsVisible(false);
         }
 
-        interactPrompt.SetActive(false);
         uiCanvas.gameObject.SetActive(true);
-
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
 
-        StartCoroutine(MoveCameraToTarget(
-            cameraTargetPosition.position,
-            Quaternion.LookRotation(lookAtTarget.position - cameraTargetPosition.position),
-            null
-        ));
+        Vector3 localTargetPos = playerCamera.parent.InverseTransformPoint(cameraTargetPosition.position);
+        Quaternion localTargetRot = Quaternion.Inverse(playerCamera.parent.rotation) * Quaternion.LookRotation(lookAtTarget.position - cameraTargetPosition.position);
+
+        StartCoroutine(MoveCameraToTarget(localTargetPos, localTargetRot, null));
     }
 
-    void ExitBoardView(bool force = false)
+    public void ExitBoardView(bool force = false)
     {
         interacting = false;
         uiCanvas.gameObject.SetActive(false);
@@ -134,43 +134,18 @@ public class LobbyBoardInteractable : MonoBehaviour
     IEnumerator MoveCameraToTarget(Vector3 targetPos, Quaternion targetRot, System.Action onComplete)
     {
         float t = 0f;
-        Vector3 startPos = playerCamera.position;
-        Quaternion startRot = playerCamera.rotation;
+        Vector3 startPos = playerCamera.localPosition;
+        Quaternion startRot = playerCamera.localRotation;
 
         while (t < 1f)
         {
             t += Time.deltaTime * cameraMoveSpeed;
-            playerCamera.position = Vector3.Lerp(startPos, targetPos, t);
-            playerCamera.rotation = Quaternion.Slerp(startRot, targetRot, t);
+            playerCamera.localPosition = Vector3.Lerp(startPos, targetPos, t);
+            playerCamera.localRotation = Quaternion.Slerp(startRot, targetRot, t);
             yield return null;
         }
 
         onComplete?.Invoke();
-    }
-
-    private void OnTriggerEnter(Collider other)
-    {
-        if (other.CompareTag("Player") || other.CompareTag("OfflinePlayer"))
-        {
-            playerNearby = true;
-            interactPrompt.SetActive(true);
-
-            if (playerCamera == null)
-                playerCamera = Camera.main.transform;
-        }
-    }
-
-    private void OnTriggerExit(Collider other)
-    {
-        if (other.CompareTag("Player") || other.CompareTag("OfflinePlayer"))
-        {
-            playerNearby = false;
-            if (!interacting)
-            {
-                interactPrompt.SetActive(false);
-                uiCanvas.gameObject.SetActive(false);
-            }
-        }
     }
 
     public void OnLocalPlayerChanged(Transform newCamera, MonoBehaviour newPlayer)
@@ -178,11 +153,12 @@ public class LobbyBoardInteractable : MonoBehaviour
         if (interacting)
         {
             Debug.Log("[LOBBY BOARD] Detected player switch while board was open. Forcing proper cleanup.");
-
-            ExitBoardView(force: true); // forcibly clean up UI and states
+            ExitBoardView(force: true);
         }
 
         playerCamera = newCamera;
+
+
 
         if (newPlayer is PlayerController pc)
             playerController = pc;

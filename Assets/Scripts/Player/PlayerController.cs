@@ -278,7 +278,7 @@ public class PlayerController : NetworkBehaviour
             {
                 bobTimer += Time.deltaTime * headBobSpeed;
             }
-                cameraHolder.localPosition = originalCamLocalPos + new Vector3(0f, bobOffset, 0f);
+            cameraHolder.localPosition = originalCamLocalPos + new Vector3(0f, bobOffset, 0f);
             cameraHolder.localRotation = Quaternion.Euler(verticalLookRotation, 0f, tilt);
         }
         else

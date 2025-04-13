@@ -58,6 +58,8 @@ GameObject:
   - component: {fileID: 4105444129546248061}
   - component: {fileID: 8368205421910724418}
   - component: {fileID: -524230476283504096}
+  - component: {fileID: 6827116374284439522}
+  - component: {fileID: -8234193440265582634}
   m_Layer: 0
   m_Name: OfflinePlayer
   m_TagString: Player
@@ -138,7 +140,36 @@ MonoBehaviour:
   headBobAmount: 0.05
   bobRotationAmount: 0.3
   landingStrength: 0.5
-  landingDuration: 0
+  landingDuration: 0.8
+--- !u!114 &6827116374284439522
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575117954151293642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f85cc27325bcfa143849914eac77fcd5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  maxSlots: 8
+--- !u!114 &-8234193440265582634
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 575117954151293642}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 596ce924fb8c72142bbb8041f4ee53b1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  interactionDistance: 3
+  interactionMask:
+    serializedVersion: 2
+    m_Bits: 64
 --- !u!1 &603413689500089589
 GameObject:
   m_ObjectHideFlags: 0
