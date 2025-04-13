@@ -13,6 +13,13 @@ public class BillboardUI : MonoBehaviour
             camTransform = Camera.main.transform;
     }
 
+    private void Update()
+    {
+        // Update camera reference if needed
+        if (Camera.main != null && Camera.main.transform != camTransform)
+            camTransform = Camera.main.transform;
+    }
+
     private void LateUpdate()
     {
         if (camTransform == null) return;

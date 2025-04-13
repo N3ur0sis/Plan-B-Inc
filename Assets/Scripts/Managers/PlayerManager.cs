@@ -59,7 +59,7 @@ public class PlayerManager : MonoBehaviour
             {
                 GameObject tag = Instantiate(nameTagPrefab, currentOfflinePlayer.transform);
                 tag.transform.localPosition = new Vector3(0, 2.2f, 0);
-                tag.GetComponentInChildren<TextMeshProUGUI>().text = SteamClient.Name + " (Offline)";
+                tag.GetComponentInChildren<TextMeshPro>().text = SteamClient.Name + " (Offline)";
                 Debug.Log("[PLAYER MANAGER] Attached name tag to offline player.");
             }
         }
@@ -150,7 +150,7 @@ public class PlayerManager : MonoBehaviour
 
         GameObject tag = Instantiate(nameTagPrefab, netObj.transform);
         tag.transform.localPosition = new Vector3(0, 2.2f, 0); // Adjust height
-        tag.GetComponentInChildren<TextMeshProUGUI>().text = playerName;
+        tag.GetComponentInChildren<TextMeshPro>().text = playerName;
         Debug.Log($"[PLAYER MANAGER] Set name tag: {playerName}");
     }
 

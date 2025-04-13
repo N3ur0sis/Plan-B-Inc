@@ -34,6 +34,10 @@ public class InteractionDetector : MonoBehaviour
 
     private void Update()
     {
+
+        // Update camera reference if needed
+        if (Camera.main != null && Camera.main != mainCamera)
+            mainCamera = Camera.main;
         DetectInteraction();
     }
 
