@@ -274,24 +274,40 @@ public class LobbyManager : MonoBehaviour
         lobbyUI.ShowAvailableLobbies(filtered);
     }
 
-    public void KickPlayer(SteamId memberId)
+    public void KickPlayer(SteamId steamId)
     {
-        if (!isHost || memberId == SteamClient.SteamId) return;
+        if (!IsHost()) return;
 
-        ulong targetClientId = GetClientIdFromSteamId(memberId);
-        if (NetworkManager.Singleton.ConnectedClients.TryGetValue(targetClientId, out var client))
-        {
-            if (client.PlayerObject != null && client.PlayerObject.TryGetComponent(out KickManager kicker))
-            {
-                kicker.KickClientRpc();
-                Debug.Log($"[LOBBY] Kick RPC sent to {memberId}");
-            }
-        }
-        else
+        ulong clientId = PlayerManager.Instance.GetClientId(steamId);
+        if (clientId == ulong.MaxValue)
         {
             Debug.LogWarning("[LOBBY] Kick failed. Client not found.");
+            return;
         }
+
+        // Find the player's KickManager component on the correct networked player
+        foreach (var netObj in NetworkManager.Singleton.SpawnManager.SpawnedObjectsList)
+        {
+            if (netObj.OwnerClientId == clientId)
+            {
+                var kickManager = netObj.GetComponent<KickManager>();
+                if (kickManager != null)
+                {
+                    kickManager.KickClientRpc();
+                    Debug.Log($"[LOBBY] Kick RPC sent to {steamId}");
+                }
+                else
+                {
+                    Debug.LogWarning($"[LOBBY] KickManager not found on player {steamId}");
+                }
+
+                return;
+            }
+        }
+
+        Debug.LogWarning($"[LOBBY] No NetworkObject found for client {clientId}");
     }
+
 
     // Helper (you must map Steam ID ↔ Client ID somewhere like in PlayerManager)
     private ulong GetClientIdFromSteamId(SteamId steamId)

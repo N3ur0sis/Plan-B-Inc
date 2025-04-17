@@ -86,17 +86,20 @@ public class PlayerManager : MonoBehaviour
 
     private void RegisterClient(ulong clientId)
     {
-        if (clientToSteamMap.ContainsKey(clientId)) return;
+        NetworkObject netObj = NetworkManager.Singleton.SpawnManager.GetPlayerNetworkObject(clientId);
+        if (netObj == null)
+        {
+            Debug.LogWarning($"[PLAYER MANAGER] No NetworkObject found for client {clientId}");
+            return;
+        }
 
-        SteamId steamId = SteamClient.SteamId; // fallback
-        if (clientId == NetworkManager.Singleton.LocalClientId)
+        if (!netObj.TryGetComponent(out PlayerController controller))
         {
-            steamId = SteamClient.SteamId;
+            Debug.LogWarning($"[PLAYER MANAGER] No PlayerController on NetworkObject for client {clientId}");
+            return;
         }
-        else
-        {
-            Debug.LogWarning($"[PLAYER MANAGER] No SteamId sync logic for client {clientId}. Defaulting.");
-        }
+
+        SteamId steamId = new SteamId { Value = controller.NetSteamId.Value };
 
         clientToSteamMap[clientId] = steamId;
         steamToClientMap[steamId] = clientId;
@@ -113,6 +116,22 @@ public class PlayerManager : MonoBehaviour
             Debug.Log($"[PLAYER MANAGER] Unregistered client {clientId} <-> SteamId {steamId}");
         }
     }
+
+    public void RegisterSteamId(ulong clientId, SteamId steamId)
+{
+    if (clientToSteamMap.ContainsKey(clientId))
+    {
+        Debug.Log($"[PLAYER MANAGER] Updating client {clientId} SteamId to {steamId}");
+        clientToSteamMap[clientId] = steamId;
+        steamToClientMap[steamId] = clientId;
+    }
+    else
+    {
+        Debug.Log($"[PLAYER MANAGER] Registered client {clientId} <-> SteamId {steamId}");
+        clientToSteamMap.Add(clientId, steamId);
+        steamToClientMap[steamId] = clientId;
+    }
+}
 
     #endregion
 

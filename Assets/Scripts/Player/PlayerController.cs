@@ -126,9 +126,12 @@ public class PlayerController : NetworkBehaviour
         }
         else
         {
+            // Wait until the variable is synced
+            StartCoroutine(WaitForSteamIdSync());
             if (cameraHolder != null)
                 cameraHolder.gameObject.SetActive(false);
         }
+
 
         // Try to attach player to board if already open
         LobbyBoardInteractable board = FindFirstObjectByType<LobbyBoardInteractable>();
@@ -153,6 +156,15 @@ public class PlayerController : NetworkBehaviour
                 PlayerManager.Instance.AttachNameTag(NetworkObject, newVal.ToString());
             }
         };
+    }
+
+
+    private IEnumerator WaitForSteamIdSync()
+    {
+        while (NetSteamId.Value == 0)
+            yield return null;
+
+        PlayerManager.Instance?.RegisterSteamId(OwnerClientId, new SteamId { Value = NetSteamId.Value });
     }
 
     [ServerRpc]

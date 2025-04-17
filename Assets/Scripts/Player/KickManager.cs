@@ -7,8 +7,6 @@ public class KickManager : NetworkBehaviour
     public void KickClientRpc()
     {
         Debug.Log("[KICK] You have been kicked.");
-
-        // Leave the Netcode session and Steam lobby — but DO NOT touch the host or full shutdown
-        LobbyManager.Instance.ForceLeaveLobby();
+        LobbyManager.Instance.ForceLeaveLobby(); // This works because it's local
     }
 }
