@@ -243,6 +243,7 @@ public class PlayerController : NetworkBehaviour
 
     private void HandleLook()
     {
+        if (IsInteracting) return;
         Vector2 lookDelta = input.Player.Look.ReadValue<Vector2>();
         float mouseX = lookDelta.x * mouseSensitivity;
         float mouseY = lookDelta.y * mouseSensitivity;
