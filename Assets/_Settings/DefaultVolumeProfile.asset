@@ -363,13 +363,13 @@ MonoBehaviour:
     m_Value: 1
   threshold:
     m_OverrideState: 1
-    m_Value: 0.74
+    m_Value: 0.47
   intensity:
     m_OverrideState: 1
-    m_Value: 0.68
+    m_Value: 2.62
   scatter:
     m_OverrideState: 1
-    m_Value: 0.831
+    m_Value: 0.688
   clamp:
     m_OverrideState: 1
     m_Value: 65472
@@ -480,7 +480,7 @@ MonoBehaviour:
   active: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 2.09
+    m_Value: 0.61
   tintColor:
     m_OverrideState: 1
     m_Value: {r: 1, g: 1, b: 1, a: 1}
@@ -489,13 +489,13 @@ MonoBehaviour:
     m_Value: 1
   firstFlareIntensity:
     m_OverrideState: 1
-    m_Value: 1.88
+    m_Value: 3.43
   secondaryFlareIntensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.84
   warpedFlareIntensity:
     m_OverrideState: 1
-    m_Value: 1
+    m_Value: 0.53
   warpedFlareScale:
     m_OverrideState: 1
     m_Value: {x: 1, y: 1}
@@ -507,25 +507,25 @@ MonoBehaviour:
     m_Value: 0.5
   vignetteEffect:
     m_OverrideState: 1
-    m_Value: 0.121
+    m_Value: 0.394
   startingPosition:
     m_OverrideState: 1
-    m_Value: 1.076
+    m_Value: 1.068
   scale:
     m_OverrideState: 1
-    m_Value: 1.69
+    m_Value: 1
   streaksIntensity:
     m_OverrideState: 1
-    m_Value: 0
+    m_Value: 0.67
   streaksLength:
     m_OverrideState: 1
-    m_Value: 0.5
+    m_Value: 0.128
   streaksOrientation:
     m_OverrideState: 1
     m_Value: 0
   streaksThreshold:
     m_OverrideState: 1
-    m_Value: 0.25
+    m_Value: 0.157
   resolution:
     m_OverrideState: 1
     m_Value: 4
