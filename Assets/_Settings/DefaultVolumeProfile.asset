@@ -192,10 +192,10 @@ MonoBehaviour:
     m_Value: 1
   intensity:
     m_OverrideState: 1
-    m_Value: 0.366
+    m_Value: 0.405
   response:
     m_OverrideState: 1
-    m_Value: 0.746
+    m_Value: 0
   texture:
     m_OverrideState: 1
     m_Value: {fileID: 0}
@@ -310,10 +310,10 @@ MonoBehaviour:
     m_Value: 0
   density:
     m_OverrideState: 1
-    m_Value: 0.034
+    m_Value: 0.039
   attenuationDistance:
     m_OverrideState: 1
-    m_Value: 2.57
+    m_Value: 0.1
   enableAPVContribution:
     m_OverrideState: 1
     m_Value: 1
